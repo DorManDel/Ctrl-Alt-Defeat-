@@ -15,6 +15,7 @@ import time
 
 from . import core, cleanup, translator, versions, arcade
 from .jobs import JobManager, scan_operation, copy_operation, temp_cleanup_operation
+from .terminal_title import TerminalTitle
 
 VERSION = '0.5.2-dev'
 AUTHOR = 'DorManDel'
@@ -595,12 +596,19 @@ def run():
     """Full-screen alternating buffer; restores the original terminal on exit."""
     _enable_windows_ansi()
     controller=Controller()
+    terminal_title=TerminalTitle()
+    terminal_title.start()
     def loop():
         redraw=0.0
         while not controller.should_exit:
             for k in _read_keys():controller.handle_key(k)
             now=time.monotonic()
             if now>=redraw:
+                active=controller.jobs.current
+                terminal_title.update(
+                    active.state if active else 'READY',
+                    active.name if active else '', version=VERSION
+                )
                 size=shutil.get_terminal_size(fallback=(120,40))
                 frame=controller.render(size.columns,max(23,size.lines),use_color=True,now=now)
                 sys.stdout.write('\033[H'+frame+'\033[J')
@@ -622,6 +630,7 @@ def run():
     finally:
         signal.signal(signal.SIGINT,old_sigint)
         sys.stdout.write('\033[?25h\033[?1049l'+RESET);sys.stdout.flush()
+        terminal_title.restore()
         if os.name!='nt':
             try:termios.tcsetattr(fd,termios.TCSADRAIN,original)
             except (OSError, NameError):pass

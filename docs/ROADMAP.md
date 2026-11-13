@@ -6,6 +6,11 @@
 
 ## Next — make the foundation trustworthy
 
+- [ ] Validate dynamic console and Windows Terminal tab titles on a real Windows host ([design/test notes](TERMINAL_TITLES.md))
+- [ ] Add pinned Storage Detective targets (drives, Steam, Ollama, Unity) and a searchable hierarchy
+- [ ] Add a job center with queued/running/completed records, safe cancellation and post-operation verification
+- [ ] Add a quick-command palette and inline help for every module
+
 - [ ] Windows startup, keyboard/navigation, resize and long-scan smoke tests
 - [ ] True state indicators for idle/running/waiting/cancelling/failed
 - [ ] End-to-end tests for every exposed module, with log and result verification
