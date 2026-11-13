@@ -30,7 +30,7 @@ class VersionCleanupTests(unittest.TestCase):
             self.make_install(root,'newer','0.6.0')
             (root/'unrelated').mkdir()
             found=versions.scan_candidates(active,[root],current_version='0.5.2')
-            self.assertEqual([x.path for x in found],[old])
+            self.assertEqual([x.path for x in found],[old.resolve(strict=True)])
 
     def test_recycle_requires_strict_sibling_and_rechecks(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -40,7 +40,7 @@ class VersionCleanupTests(unittest.TestCase):
             candidate=versions.scan_candidates(active,[root],current_version='0.5.2')[0]
             captured=[]
             versions.recycle_candidate(candidate,current=active,recycler=lambda p:captured.append(p))
-            self.assertEqual(captured,[old])
+            self.assertEqual(captured,[old.resolve(strict=True)])
             (old/'.git').mkdir()
             with self.assertRaises(ValueError):versions.recycle_candidate(candidate,current=active,recycler=lambda p:None)
 
