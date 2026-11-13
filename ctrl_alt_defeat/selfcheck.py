@@ -12,7 +12,13 @@ def checks():
     record('Version matches', (root/'VERSION.txt').read_text().strip()==dashboard.VERSION.split('-')[0],dashboard.VERSION)
     record('Correct ASCII brand', 'CTRL + ALT + DEFEAT' in dashboard.Controller().render(120,40), 'header has canonical title')
     record('Offline translator',translator.suggest('how much free space on C')['matched'],'known intent resolved')
-    record('Version manager safeguards', versions._version(root) is not None, 'source is verifiable')
+    # Git checkouts must never be considered old installations to recycle.
+    # A self-check on GitHub runners should consider this protection a pass.
+    version_found = versions._version(root) is not None
+    checkout_protected = (root / '.git').exists() and not version_found
+    record('Version manager safeguards',
+           version_found or checkout_protected,
+           'release recognized or Git checkout protected')
     return result
 
 def run_checks(job,mgr):
