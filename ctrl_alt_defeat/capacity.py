@@ -19,6 +19,14 @@ CHUNK = MIB
 PREFIX = '.winforge-capacity-'
 
 
+def _is_system_drive(target: Path) -> bool:
+    """Determine whether an existing Windows target resides on the system drive."""
+    if os.name != 'nt':
+        return False
+    system_drive = os.environ.get('SystemDrive', 'C:').upper().rstrip('\\/')
+    return target.drive.upper().rstrip('\\/') == system_drive
+
+
 def _validate_target(target: Path, mib: int, reserve_mib: int):
     target = target.resolve(strict=True)
     if not target.is_dir() or target.is_symlink():
@@ -27,10 +35,8 @@ def _validate_target(target: Path, mib: int, reserve_mib: int):
         raise ValueError(f'Test must be between 1 and {MAX_TEST_MIB} MiB')
     if reserve_mib < DEFAULT_RESERVE_MIB:
         raise ValueError(f'Minimum reserve is {DEFAULT_RESERVE_MIB} MiB')
-    if os.name == 'nt':
-        system_drive = os.environ.get('SystemDrive', 'C:').upper().rstrip('\\/')
-        if target.drive.upper().rstrip('\\/') == system_drive:
-            raise ValueError('Refusing capacity stress test on Windows system drive')
+    if _is_system_drive(target):
+        raise ValueError('Refusing capacity stress test on Windows system drive')
     free = shutil.disk_usage(target).free
     if free < (mib + reserve_mib) * MIB:
         raise ValueError('Not enough free space after retaining safety reserve')

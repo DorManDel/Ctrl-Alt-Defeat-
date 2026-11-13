@@ -2,6 +2,16 @@
 
 **Automated local checks:** double-click `RunTests.cmd`. The test suite must show zero failures. A passing Python test is **not** proof that Windows UAC, arcade EXEs, or the Win32 Recycle Bin work.
 
+## Windows regression fixes (2026-11-14)
+
+A real Windows pre-push run exposed three errors that did not occur on Linux:
+
+- **SQLite lock (`WinError 32`)**: `sqlite3.Connection` used as a context manager commits/rolls back but does **not** close the database handle. Snapshot code now explicitly closes connections before Windows removes temporary test folders.
+- **Capacity preview + write tests on `C:`**: the system-drive protection was working as designed. The two test fixtures now simulate an external drive **only within the test using a mock**, while retaining the real 5 GiB safety reserve and the write/read/verify/cleanup logic. Production code still refuses capacity tests on the Windows system drive.
+- **Guard regression test**: a new test explicitly confirms that a system-drive target is rejected without writing test files.
+
+A successful cross-platform Python test suite is still **not** proof of Windows console/launcher behavior. Rerun `RunTests.cmd` on a Windows machine before merging to `main`.
+
 ## On Windows — manual smoke tests
 
 - [ ] Extract into new folder and double-click `START-v0.5.2.vbs`. Verify title says `v0.5.2-dev • by DorManDel`. Close any old app first.

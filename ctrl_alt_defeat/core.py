@@ -1,5 +1,6 @@
 from __future__ import annotations
 import datetime as dt
+from contextlib import contextmanager
 import hashlib
 import json
 import os
@@ -97,12 +98,21 @@ def scan(path: Path, progress=None, cancel_event=None) -> dict:
     return dict(root=str(path), timestamp=dt.datetime.now(dt.timezone.utc).isoformat(), drive=drive_space(path), entries=children)
 
 
-def connect() -> sqlite3.Connection:
+@contextmanager
+def connect():
+    """Yield a snapshot connection and close its file handle on all platforms.
+
+    sqlite3.Connection's own context manager commits/rolls back, but it does
+    *not* close the connection. Windows refuses to delete a DB with open handles.
+    """
     APP_DIR.mkdir(parents=True, exist_ok=True)
     con = sqlite3.connect(DB_PATH)
-    con.execute('CREATE TABLE IF NOT EXISTS snapshots (id INTEGER PRIMARY KEY, created TEXT NOT NULL, root TEXT NOT NULL, payload TEXT NOT NULL)')
-    return con
-
+    try:
+        con.execute('CREATE TABLE IF NOT EXISTS snapshots (id INTEGER PRIMARY KEY, created TEXT NOT NULL, root TEXT NOT NULL, payload TEXT NOT NULL)')
+        with con:
+            yield con
+    finally:
+        con.close()
 
 def save_snapshot(data: dict) -> int:
     with connect() as con:

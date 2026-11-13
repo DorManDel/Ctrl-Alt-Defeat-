@@ -1,4 +1,4 @@
-Ctrl+Alt+Defeat v0.5.2 — TEST BUILD, not pushed to GitHub.
+Ctrl+Alt+Defeat v0.5.2 — dev branch (Windows test fixture hotfix).
 New: sibling version discovery and explicit Recycle Bin option (no Git checkout);
 realistic offline translator and opt-in Ollama AI preview;
 arcade adapters for independently installed MIT Snake / GPLv3 RetroArcade;
@@ -6,3 +6,5 @@ normal-user PlayArcade.cmd launcher; background self-check in menu;
 tests, architecture and user-journey docs.
 Important: game executables are NOT distributed with this package.
 For game setup see docs/ARCADE_SETUP.md.
+
+Windows test hotfix: closed SQLite connections, corrected capacity-test mocks, and added a system-drive guard regression test. Production capacity restriction is unchanged.
