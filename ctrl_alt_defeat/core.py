@@ -7,6 +7,16 @@ from pathlib import Path
 import shutil
 import sqlite3
 import tempfile
+import stat
+
+
+def is_linklike(path: Path) -> bool:
+    """Skip symlinks and Windows junction/reparse points during recursive scans."""
+    try:
+        st = path.lstat()
+        return path.is_symlink() or bool(getattr(st, 'st_file_attributes', 0) & getattr(stat, 'FILE_ATTRIBUTE_REPARSE_POINT', 0))
+    except OSError:
+        return True
 
 APP_DIR = Path.home() / '.winforge'
 DB_PATH = APP_DIR / 'snapshots.sqlite3'
@@ -27,41 +37,62 @@ def drive_space(path: Path) -> dict:
     return dict(total=usage.total, used=usage.used, free=usage.free)
 
 
-def folder_size(path: Path) -> tuple[int, int, int]:
+def folder_size(path: Path, progress=None, cancel_event=None) -> tuple[int, int, int]:
+    """Walk without following links, reporting live file progress and safe cancel points."""
+    from .jobs import Cancelled
     total, files, errors = 0, 0, 0
+    def check():
+        if cancel_event is not None and cancel_event.is_set():
+            raise Cancelled('Scan stopped by user')
     def onerror(_):
         nonlocal errors
         errors += 1
     for root, dirs, filenames in os.walk(path, followlinks=False, onerror=onerror):
-        dirs[:] = [d for d in dirs if not (Path(root)/d).is_symlink()]
+        check()
+        dirs[:] = [d for d in dirs if not is_linklike(Path(root)/d)]
         for name in filenames:
+            check()
             item = Path(root) / name
             try:
-                if item.is_symlink():
+                if is_linklike(item):
                     continue
-                total += item.stat().st_size
+                size = item.stat().st_size
+                total += size
                 files += 1
+                if progress is not None:
+                    progress(files=1, bytes_processed=size, current=str(item))
             except OSError:
                 errors += 1
     return total, files, errors
 
 
-def scan(path: Path) -> dict:
+def scan(path: Path, progress=None, cancel_event=None) -> dict:
+    """Top-level snapshot; percentage denotes completed immediate children, not bytes."""
+    from .jobs import Cancelled
     path = path.expanduser().resolve(strict=True)
     if not path.is_dir():
         raise ValueError('Scan target must be a directory')
     children = []
-    for child in path.iterdir():
-        if child.is_symlink():
-            continue
+    names = [p for p in path.iterdir() if not is_linklike(p)]
+    if progress is not None:
+        progress(total=len(names), current=str(path))
+    for child in names:
+        if cancel_event is not None and cancel_event.is_set():
+            raise Cancelled('Scan stopped by user')
+        if progress is not None:
+            progress(current=str(child))
         if child.is_dir():
-            size, files, errors = folder_size(child)
+            size, files, errors = folder_size(child, progress=progress, cancel_event=cancel_event)
         else:
             try:
                 size, files, errors = child.stat().st_size, 1, 0
+                if progress is not None:
+                    progress(files=1, bytes_processed=size)
             except OSError:
                 size, files, errors = 0, 0, 1
         children.append(dict(name=child.name, path=str(child), logical_bytes=size, files=files, errors=errors))
+        if progress is not None:
+            progress(completed=1)
     children.sort(key=lambda item: item['logical_bytes'], reverse=True)
     return dict(root=str(path), timestamp=dt.datetime.now(dt.timezone.utc).isoformat(), drive=drive_space(path), entries=children)
 

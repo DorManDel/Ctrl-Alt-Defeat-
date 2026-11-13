@@ -1,84 +1,83 @@
-# Ctrl+Alt+Defeat 🛠️
+<div align="center">
 
-> **When Windows fights back, press harder.**
+# ⌨️ Ctrl + Alt + Defeat
 
-**Ctrl+Alt+Defeat** (`CtrlAltDefeat`) is a Windows-first, terminal-based toolkit for storage diagnostics, safe file operations and developer utilities. Built for people who want to understand what a system tool will do *before* it does it.
+**When Windows fights back, press harder.**
 
-**Status:** v0.3 alpha — source-based Python application. Not yet a standalone executable, and not yet tested on a physical Windows installation.
+*A slightly sarcastic, seriously useful terminal toolkit for understanding and fixing your PC.*
 
-## Quick start — Windows
+**Built by [DorManDel](https://github.com/DorManDel)**
 
-1. Extract this repository to a folder.
-2. Ensure Python 3.10+ is installed and available through `py` or `python`.
-3. **Double-click `CtrlAltDefeat.cmd`** and approve the Windows UAC elevation request.
-4. Choose a module in the terminal menu.
+![Status: alpha](https://img.shields.io/badge/status-alpha-orange?style=flat-square)
+![Windows first](https://img.shields.io/badge/platform-Windows%2011-0078D4?style=flat-square)
+![Python](https://img.shields.io/badge/core-Python%203.10%2B-3776AB?style=flat-square)
+![Development](https://img.shields.io/badge/version-v0.5.2--dev-9B76D6?style=flat-square)
+![AI assistant](https://img.shields.io/badge/AI%20assistant-planned-lightgrey?style=flat-square)
 
-No typed startup command is needed. The menu works without optional packages; `rich` enables colored tables (`py -m pip install -r requirements.txt`). If you prefer a PowerShell launcher, `start.ps1` also runs the menu but doesn't elevate automatically. `launcher.ps1` performs elevation when called by `CtrlAltDefeat.cmd`.
+[**Get started**](#-get-started) · [**Features**](#-what-can-it-do) · [**Atlas**](docs/ATLAS.md) · [**Roadmap**](docs/ROADMAP.md) · [**Tests**](docs/TEST_PLAN.md)
 
-## Modules available now
+</div>
 
-| Module | Behavior |
+![Actual Ctrl+Alt+Defeat terminal dashboard in Windows PowerShell, v0.5.1](assets/screenshots/dashboard-v0.5.1.png)
+
+> **Screenshot:** Real Windows test of the **v0.5.1** two-pane dashboard. The v0.5.2 test build adds a translator, self-test and version manager; their Windows behavior still needs validation.
+
+## 🎯 Why does this exist?
+
+We started by trying to understand **why deleting huge games didn't return the expected disk space**. The scripts we had were effective, but scattered. The diagnostics were useful, but lacked history, clarity and safe controls.
+
+**The goal:** one place to *inspect, explain, preview, act and verify* — without having to remember fifty commands. Simple enough for a curious Windows user; transparent enough for a developer to trust.
+
+## ✨ What can it do?
+
+| Area | Current direction |
 |---|---|
-| Storage snapshots | Read-only directory scans with local SQLite history |
-| Snapshot comparison | Compare scanned directory sizes and free space |
-| Temp preview | Read-only inspection, no deletion |
-| Copy / backup | Single-file copies, explicit confirmation, SHA-256 verification |
-| Capacity test | Limited write/read test on non-system drives; verifies its own files |
-| Command translator | Vetted command suggestions only, does not execute generated commands |
-| Arcade | Curated links, not bundled games |
-| System doctor | Read-only local path checks |
+| 🗂️ **Storage Detective** | Browse drives, scan folders, save and compare snapshots |
+| 🧹 **Cleanup** | Preview old user Temp files, explicitly approve limited deletion |
+| 📁 **File tools** | Verified single-file copy with SHA-256 and cancellation |
+| 📟 **Terminal dashboard** | Two panes, colored statuses, spinner, progress, event logs |
+| 🛠️ **System Doctor** | Read-only diagnostics and guidance |
+| 💬 **Translator** | Curated commands or optional local Ollama suggestions; **preview only** |
+| 👾 **Arcade** | Optional adapters for separately installed games; not bundled |
+| 🧪 **Self-test** | Automated tests and a Windows smoke-test checklist |
 
-## Optional command-line usage
+**Alpha, not magic:** some modules remain experimental. No unrestricted AI command execution, blanket Windows cache deletion, or guaranteed secure disk wiping. See [what works and what doesn't](docs/ATLAS.md#current-reality).
 
-```powershell
-py -m ctrl_alt_defeat menu
-py -m ctrl_alt_defeat scan "C:\Program Files (x86)\Steam\steamapps" --save
-py -m ctrl_alt_defeat history
-py -m ctrl_alt_defeat compare 1 2
-py -m ctrl_alt_defeat doctor
-```
+## 🚀 Get started
 
-## Safety boundaries
+1. Download or clone the **development build**, then extract it into its own folder.
+2. Double-click **`START-v0.5.2.vbs`** (fallback: `CtrlAltDefeat.cmd`). Review the Administrator prompt.
+3. Use **↑ ↓ / Enter** to navigate, **Tab** to switch panes, **Esc** to go back, **C** to request cancellation, and **L** for logs.
+4. Before trusting a new build, double-click **`RunTests.cmd`** and follow the [Windows smoke test](docs/WINDOWS_SMOKE_TEST.md).
 
-- Original `.bat` scripts are preserved **verbatim** in `legacy/` and never executed by this project.
-- No automatic service changes, Windows Update cache removal, registry editing, or disk wiping.
-- The capacity test is **not** a secure erase or full drive authentication tool.
-- Copy and backup currently support single files, without overwriting existing targets.
-- Elevation is requested at launch for the intended admin workflow; a future release should use per-operation privileges so games and browsing do not run elevated.
-- The snapshot database remains in `~/.winforge/snapshots.sqlite3` for compatibility with previous WinForge builds. Likewise, existing `.winforge-capacity-*` test directories keep their names so recovery tools still recognize them.
+The source build needs Python 3.10+. A standalone Windows executable is a future packaging goal. **Do not run third-party arcade executables with Administrator privileges.**
 
-## Project structure
+<details>
+<summary><strong>Keyboard shortcuts & where to find logs</strong></summary>
 
-```text
-CtrlAltDefeat/
-├── CtrlAltDefeat.cmd     # Double-click launcher
-├── launcher.ps1          # UAC elevation and Python invocation
-├── start.ps1             # Manual PowerShell entry point
-├── ctrl_alt_defeat/      # Python CLI, storage, capacity, translator
-├── tests/                # Automated tests
-├── docs/                 # Module notes, roadmap and legacy audit
-└── legacy/               # Historical scripts — never executed
-```
+- **↑ ↓ / Enter** — select and open
+- **Tab** — switch panes · **Esc** — back, jobs continue
+- **C / Ctrl+C** — request cooperative cancellation · **L** — event log
+- **F1 / ?** — help · **Q** — exit safely
+- Logs: `%USERPROFILE%\.ctrl_alt_defeat\logs\` (timestamped JSONL)
 
-## Development
+</details>
 
-```powershell
-py -m unittest discover -s tests -v
-```
+## 🧭 Explore the project
 
-Planned: interactive animated TUI, recursive verified backups, cleanup quarantine/rollback, opt-in tool adapters (WizTree, WinUtil, Czkawka, FFmpeg), and portable `.exe` builds.
+GitHub README files don't support native tabs, so our **[Project Atlas](docs/ATLAS.md)** acts as the navigation hub. It links to implementation details, design decisions, testing evidence, inspirations and future goals.
 
-## Licensing and attribution
+| Read | Why |
+|---|---|
+| [Atlas](docs/ATLAS.md) | All modules and references in one place |
+| [How it works](docs/HOW_IT_WORKS.md) | Code architecture and file-by-file explanation |
+| [Why we built it this way](docs/DECISIONS.md) | Decisions, tradeoffs and lessons from bugs |
+| [Roadmap](docs/ROADMAP.md) | What we're shipping next |
+| [AI assistant vision](docs/AI_ASSISTANT_VISION.md) | Optional local-first help without unrestricted shell access |
+| [Tests](docs/TEST_PLAN.md) | Automated checks versus real-Windows validation |
 
-The legacy batch files are retained as user-contributed historical examples. Third-party games and system utilities are **not bundled**. Review each dependency's license before vendoring or redistribution. **Choose a repository license before publishing**; a LICENSE file has intentionally not been assumed.
+## 🤝 A note on safety
 
-## Branding
+**Preview first. Confirm changes. Verify results.** The project keeps legacy batch scripts as historical references but never silently runs them. Some actions require elevated permissions; this is not permission for the app to delete arbitrary data.
 
-- **Display name:** Ctrl+Alt+Defeat
-- **Repository slug:** `CtrlAltDefeat`
-- **Windows entry point:** `CtrlAltDefeat.cmd`
-- **Python package:** `ctrl_alt_defeat`
-- **Future executable:** `CtrlAltDefeat.exe`
-- **Tagline:** *When Windows fights back, press harder.*
-
-Not affiliated with Microsoft. No guarantees of recovered disk space or suitability for critical system repairs.
+Early build, community feedback welcome. No affiliation with Microsoft. A third-party dependency/license audit is required before stable redistribution.

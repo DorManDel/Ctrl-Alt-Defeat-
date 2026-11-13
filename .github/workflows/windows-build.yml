@@ -1,0 +1,29 @@
+name: Windows CI and portable build
+on:
+  workflow_dispatch:
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [main]
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile Python source
+        run: python -m compileall -q ctrl_alt_defeat
+      - name: Run automated tests before build
+        run: python -m unittest discover -s tests -v
+      - name: Install build tool
+        run: python -m pip install pyinstaller
+      - name: Build standalone console app
+        run: pyinstaller --onefile --console --name CtrlAltDefeat --hidden-import ctrl_alt_defeat.dashboard --hidden-import ctrl_alt_defeat.jobs --hidden-import ctrl_alt_defeat.cleanup portable_main.py
+      - name: Upload EXE artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CtrlAltDefeat-Windows-x64-v05
+          path: dist/CtrlAltDefeat.exe

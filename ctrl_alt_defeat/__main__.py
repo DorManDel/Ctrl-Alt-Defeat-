@@ -3,6 +3,7 @@ import argparse
 import os
 from pathlib import Path
 import sys
+import re
 from . import core, capacity, translator
 
 try:
@@ -18,7 +19,9 @@ except ImportError:
 
 def say(msg):
     if console: console.print(msg)
-    else: print(msg)
+    else:
+        import re
+        print(re.sub(r'\[/?[a-zA-Z_ ]+\]', '', str(msg)))
 
 
 def table(columns, rows):
@@ -59,7 +62,7 @@ def run(args):
         d=core.temp_candidates(args.days)
         say(f"Read-only temp preview: {d['root']} | {len(d['candidates'])} candidate files | {core.format_size(d['total'])}")
         table(['File','Logical size'],[(c['name'],core.format_size(c['size'])) for c in d['candidates'][:args.top]])
-        say('[yellow]No deletion is implemented in v0.1. Files may be active even when old.[/yellow]')
+        say('[yellow]This command only previews. Interactive TUI includes a separate confirmed scoped user-Temp deletion.[/yellow]')
     elif args.command=='doctor':
         say('Ctrl+Alt+Defeat doctor (read-only)')
         paths=[Path(os.environ.get('LOCALAPPDATA',Path.home()))/'ollama', Path(os.environ.get('PROGRAMFILES(X86)','C:/Program Files (x86)'))/'Steam'/'steamapps'/'downloading']
@@ -79,7 +82,8 @@ def run(args):
     elif args.command=='arcade':
         arcade()
     elif args.command=='menu':
-        menu()
+        from . import dashboard
+        dashboard.run()
 
 
 def interactive_transfer(action):
@@ -94,15 +98,12 @@ def interactive_transfer(action):
     run(argparse.Namespace(command=action,source=src,destination=dst,apply=True))
 
 
-GAMES = [
-    ('Snake (MIT)', 'https://github.com/GeorgeZhukov/python-snake'),
-    ('Space Invaders (RetroArcade)', 'https://github.com/fastrgv/RetroArcade'),
-]
-
 def arcade():
-    say('[bold magenta]ARCADE // curated third-party games[/bold magenta]')
-    table(['Key','Game','Verified project'],[(i+1,n,url) for i,(n,url) in enumerate(GAMES)])
-    say('[yellow]Games are NOT bundled or executed in this alpha; review project licenses and releases before installing.[/yellow]')
+    from . import arcade as games
+    say('ARCADE / Official external terminal games, run without Admin')
+    table(['Game','Installed','Project'],[(g.name,'YES' if games.find_game(g) else 'NO',g.project) for g in games.GAMES])
+    say('Double-click PlayArcade.cmd from a normal Windows session to start installed games.')
+    say('Third-party binaries are not bundled. Never start games under Administrator.')
 
 
 def menu():
