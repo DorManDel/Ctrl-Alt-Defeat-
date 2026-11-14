@@ -14,7 +14,7 @@
 ![Development](https://img.shields.io/badge/version-v0.5.2--dev-9B76D6?style=flat-square)
 ![AI assistant](https://img.shields.io/badge/AI%20assistant-planned-lightgrey?style=flat-square)
 
-[**Get started**](#-get-started) · [**Features**](#-what-can-it-do) · [**Atlas**](docs/ATLAS.md) · [**Roadmap**](docs/ROADMAP.md) · [**Tests**](docs/TEST_PLAN.md)
+[**Get started**](#-get-started) · [**Features**](#-what-can-it-do) · [**Capability Plan**](docs/CAPABILITY_PLAN.md) · [**Atlas**](docs/ATLAS.md) · [**Roadmap**](docs/ROADMAP.md) · [**Tests**](docs/TEST_PLAN.md)
 
 </div>
 
@@ -70,6 +70,9 @@ GitHub README files don't support native tabs, so our **[Project Atlas](docs/ATL
 | Read | Why |
 |---|---|
 | [Atlas](docs/ATLAS.md) | All modules and references in one place |
+| [Capability Plan](docs/CAPABILITY_PLAN.md) | Current actions, planned operations, risk and priorities |
+| [External Adapters](docs/ADAPTER_EVALUATION.md) | What third-party tools do and how to integrate them safely |
+| [AI Approval Protocol](docs/AI_ACTION_PROTOCOL.md) | Explain each command and ask before any AI-initiated action |
 | [How it works](docs/HOW_IT_WORKS.md) | Code architecture and file-by-file explanation |
 | [Why we built it this way](docs/DECISIONS.md) | Decisions, tradeoffs and lessons from bugs |
 | [Roadmap](docs/ROADMAP.md) | What we're shipping next |
