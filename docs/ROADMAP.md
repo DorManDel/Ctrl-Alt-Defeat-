@@ -41,6 +41,20 @@
 - [ ] Build capability registry with typed params, permission policy and robust path validation
 - [ ] Preview actions with per-operation approvals, rollback policy and auditable execution plans
 
+## Capability plan, external adapters & human-readable commands
+
+- [x] Publish an honest current/planned capability inventory ([catalog](CAPABILITY_PLAN.md))
+- [x] Store a machine-readable **planning-only** list of actions, priorities, risk and proposed providers ([JSON](../planning/capability_catalog.json))
+- [x] Evaluate WinUtil, WizTree, Czkawka, Robocopy, WinGet, Sysinternals, FFmpeg, ImageMagick, recovery environments and licensing constraints ([matrix](ADAPTER_EVALUATION.md))
+- [x] Define the **Explain → Preview → Approve → Execute → Verify** protocol, including simple/detailed per-flag explanations ([protocol](AI_ACTION_PROTOCOL.md))
+- [ ] Implement typed, non-executable capability registry independent from the LLM
+- [ ] Build first **trusted command explainer**; offline simple/detailed and Hebrew/English
+- [ ] Build separate user-approval and least-privileged executor, with invalidation on any plan change
+- [ ] Deliver P0 **Robocopy** recursive backup with preview, verified copy and restore tests
+- [ ] Deliver P1 read-only **WizTree CSV** and **Czkawka JSON** adapters
+- [ ] Add adapter-specific cancellation, tool version/availability/license checks and measured results
+- [ ] Expand integration tests, negative tests and Windows acceptance before enabling AI tool execution
+
 ## Later — the small AI helper
 
 - [ ] Catalog trusted tool capabilities and typed arguments
