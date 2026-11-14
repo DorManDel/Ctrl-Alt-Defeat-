@@ -12,7 +12,11 @@ def checks():
     record('Version matches', (root/'VERSION.txt').read_text().strip()==dashboard.VERSION.split('-')[0],dashboard.VERSION)
     record('Correct ASCII brand', 'CTRL + ALT + DEFEAT' in dashboard.Controller().render(120,40), 'header has canonical title')
     record('Offline translator',translator.suggest('how much free space on C')['matched'],'known intent resolved')
-    record('Version manager safeguards', versions._version(root) is not None, 'source is verifiable')
+    # Git checkouts must never be mistaken for deletable old installations.
+    recognized = versions._version(root) is not None
+    protected_git = (root/'.git').exists() and not recognized
+    record('Version manager safeguards', recognized or protected_git,
+           'recognized installed copy or protected Git checkout')
     return result
 
 def run_checks(job,mgr):
