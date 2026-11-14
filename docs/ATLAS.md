@@ -20,6 +20,8 @@ This is the map of **Ctrl+Alt+Defeat**: what exists, where the code lives, why i
 
 **New explorations:** [Control Center blueprint](CONTROL_CENTER.md) · [Local Intent Lab](INTENT_LAB.md) · [Activity history](ACTIVITY_LOG.md)
 
+**Planning hub:** [Capability Plan & current status](CAPABILITY_PLAN.md) · [External Adapter Evaluation](ADAPTER_EVALUATION.md) · [Explain → Preview → Approve protocol](AI_ACTION_PROTOCOL.md) · [Machine-readable planning catalog](../planning/capability_catalog.json). The catalog is **design-only**, not an executable AI allowlist.
+
 ## Current reality
 
 - **Implemented and headless-tested:** selected Python navigation, job state, scans, limited cleanup, hashing, translator catalog and startup routing.
