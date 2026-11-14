@@ -13,7 +13,9 @@ import string
 import sys
 import time
 
-from . import core, cleanup, translator, versions, arcade
+from . import core, cleanup, translator, versions, arcade, intent_router
+from .navigation import Location, NavigationStack
+from .activity import ActivityJournal
 from .jobs import JobManager, scan_operation, copy_operation, temp_cleanup_operation
 
 VERSION = '0.5.2-dev'
@@ -126,12 +128,17 @@ class Controller:
         self.report: dict | None = None
         self.snapshot_anchor: int | None = None
         self.translation: dict | None = None
+        self.intent_plan: dict | None = None
+        self.result_mode = 'command'
         self.old_versions: list[versions.Candidate] = []
         self.game_cursor = 0
         self.translator_query = ''
         self.should_exit = False
         self.exit_when_idle = False
         self.last_browser: list[Path] = []
+        self.history = NavigationStack()
+        self.storage_view = "folders"
+        self.activity = ActivityJournal(self.jobs.log_dir.parent/'activity.jsonl')
         self.refresh_content()
 
     @property
@@ -150,9 +157,17 @@ class Controller:
                     self.last_browser=[]
         self.content_cursor = max(0,min(self.content_cursor,max(0,len(self.last_browser)-1)))
 
+    def _location(self) -> Location:
+        return Location(self.mode, self.focus, self.path, self.drive_mode, self.content_cursor)
+
+    def _remember_location(self):
+        self.history.remember(self._location())
+
     def enter_module(self, number: int):
         if number == len(MENU)-1:
             self.request_exit();return
+        if number != self.mode or self.focus != "content":
+            self._remember_location()
         self.mode = number
         self.focus = 'content'
         self.content_cursor=0
@@ -166,6 +181,7 @@ class Controller:
             except (OSError, ValueError) as exc:
                 self.report=None;self.message=f'Temp preview unavailable: {exc}'
         self.jobs.log('INFO', f'Opened {self.current_module}')
+        self.activity.record('navigation', operation=self.current_module)
 
     def refresh_versions(self):
         try:
@@ -203,8 +219,21 @@ class Controller:
     def action_back(self):
         if self.prompt is not None:
             self.prompt=None;self.message='Input cancelled.';return
-        self.focus='menu'
-        self.message='Back to module navigation. Running jobs continue.'
+        previous = self.history.back()
+        if previous is None:
+            self.focus='menu'
+            self.message='Back to module navigation. Running jobs continue.'
+            return
+        self.mode = previous.module
+        self.focus = previous.focus
+        self.path = previous.folder
+        self.drive_mode = previous.drive_mode
+        self.content_cursor = previous.cursor
+        if self.mode == 0:
+            self.refresh_content()
+        self.message=f'Back to {self.current_module}. Running jobs continue.'
+        self.jobs.log('INFO', f'Navigated back to {self.current_module}')
+        self.activity.record('navigation', operation=self.current_module)
 
     def start_scan(self):
         if self.mode!=0:return
@@ -255,17 +284,42 @@ class Controller:
             except RuntimeError as exc:self.message=str(exc)
         elif kind=='translate':
             if value:
+                self.result_mode='command';self.intent_plan=None
                 self.translation=translator.suggest(value)
                 self.translator_query=value
                 self.message='Offline translator preview ready. No command was run.'
+        elif kind=='intent_offline':
+            if value:
+                self.result_mode='intent';self.translation=None
+                self.translator_query=value
+                self.intent_plan=intent_router.offline_demo(value)
+                self.activity.record_plan(self.intent_plan)
+                self.message='Offline intent baseline ready. No action executed.'
+        elif kind=='intent_ollama':
+            if value:
+                self.result_mode='intent';self.translation=None
+                self.translator_query=value
+                self.intent_plan=None
+                def op(job,mgr):
+                    def received(chunk):
+                        mgr.checkpoint(job,bytes_processed=len(chunk),current='Receiving structured intent JSON')
+                    plan=intent_router.from_ollama(value, cancel_event=job.cancel_event, on_chunk=received)
+                    self.activity.record_plan(plan)
+                    return plan
+                try:
+                    job=self.jobs.start('Ollama intent classifier','<local request withheld>',op)
+                    self.message=f'Intent classification #{job.id} running; no commands will execute.'
+                except RuntimeError as exc:
+                    self.message=str(exc)
         elif kind=='translate_ai':
             if value:
+                self.result_mode='command';self.intent_plan=None
                 self.translator_query=value
                 def op(job,mgr):
                     def received(chunk):mgr.checkpoint(job,bytes_processed=len(chunk),current='Streaming local model response')
                     return translator.from_ollama(value,cancel_event=job.cancel_event,on_chunk=received)
                 try:
-                    job=self.jobs.start('Ollama translator',value,op)
+                    job=self.jobs.start('Ollama translator','<local request withheld>',op)
                     self.message=f'Local Ollama request started #{job.id}. ESC returns; C cancels.'
                 except RuntimeError as exc:self.message=str(exc)
         elif kind=='recycle_version':
@@ -308,13 +362,21 @@ class Controller:
         if self.mode==0:
             if key=='s':self.start_scan()
             elif key=='g':self.prompt=Prompt('Go to folder path', 'goto')
-            elif key=='d':self.drive_mode=True;self.refresh_content();self.message='Choose a drive; Enter to open.'
+            elif key=='d':
+                self._remember_location()
+                self.drive_mode=True;self.refresh_content();self.message='Choose a drive; Enter to open.'
+            elif key=='v':
+                self.storage_view='bars' if self.storage_view=='folders' else 'folders'
+                self.message='Storage view: '+self.storage_view+' (bars require a completed scan)'
             elif key=='back':
                 if self.drive_mode:self.drive_mode=False;self.refresh_content()
-                elif self.path.parent!=self.path:self.path=self.path.parent;self.refresh_content()
+                elif self.path.parent!=self.path:
+                    self._remember_location()
+                    self.path=self.path.parent;self.refresh_content()
             elif key=='up':self.content_cursor=max(0,self.content_cursor-1)
             elif key=='down':self.content_cursor=min(max(0,len(self.last_browser)-1),self.content_cursor+1)
             elif key=='enter' and self.last_browser:
+                self._remember_location()
                 self.path=self.last_browser[self.content_cursor];self.drive_mode=False
                 self.refresh_content();self.message=f'Browsing {self.path}'
         elif self.mode==1:
@@ -340,6 +402,8 @@ class Controller:
         elif self.mode==5:
             if key=='n':self.prompt=Prompt('Describe task (offline curated recipes)', 'translate')
             elif key=='o':self.prompt=Prompt('Describe task (Ollama local AI preview)', 'translate_ai')
+            elif key=='i':self.prompt=Prompt('Describe task for Ollama intent planner (no execution)', 'intent_ollama')
+            elif key=='p':self.prompt=Prompt('Describe task for offline intent baseline', 'intent_offline')
         elif self.mode==6:
             if key=='up':self.game_cursor=max(0,self.game_cursor-1)
             elif key=='down':self.game_cursor=min(len(arcade.GAMES)-1,self.game_cursor+1)
@@ -366,13 +430,26 @@ class Controller:
     def content_lines(self) -> list[str]:
         if self.mode==0:
             rows=['STORAGE / '+('AVAILABLE DRIVES' if self.drive_mode else str(self.path)),
-                  'D: drives   G: go to path   S: scan current folder',
-                  '↑↓: select   Enter: open   Backspace: parent', '']
+                  'D: drives   G: go to path   S: scan   V: list/bars',
+                  '↑↓: select   Enter: open   Backspace: parent   Esc: history', '']
             try:
                 usage=shutil.disk_usage(self.path)
                 rows.append(f'Disk: {readable_size(usage.free)} free / {readable_size(usage.total)}')
             except OSError:rows.append('Disk usage unavailable')
             rows.append('')
+            scan_job=self.jobs.current
+            if self.storage_view=='bars':
+                if scan_job and scan_job.name=='Storage scan' and scan_job.state=='COMPLETED' and scan_job.result and Path(scan_job.result.get('root','')).resolve()==self.path.resolve():
+                    entries=sorted(scan_job.result.get('entries',[]),key=lambda e:e.get('logical_bytes',0),reverse=True)[:18]
+                    maximum=max([e.get('logical_bytes',0) for e in entries] or [0])
+                    rows.extend(['SIZE BARS / logical sizes, not allocated disk usage',''])
+                    for entry in entries:
+                        value=max(0,int(entry.get('logical_bytes',0)))
+                        length=round(value/maximum*19) if maximum else 0
+                        rows.append(f"{str(entry.get('name',''))[:19]:19} {'#'*length:<19} {readable_size(value)}")
+                else:
+                    rows.extend(['No completed scan for this folder yet.', 'Press S to scan; Esc navigates without stopping.'])
+                return rows
             for i,item in enumerate(self.last_browser):
                 prefix='▶' if i==self.content_cursor else ' '
                 rows.append(f'{prefix} {item.name or str(item)}')
@@ -408,20 +485,39 @@ class Controller:
                     'This page never changes Windows settings.']
         if self.mode==5:
             rows=['COMMAND TRANSLATOR / PREVIEW ONLY',
-                  'N: trusted offline recipe    O: local Ollama AI suggestion',
+                  'N: trusted recipe    O: old AI command preview',
+                  'I: Ollama intent plan (1.5b)    P: offline intent demo',
                   'AI requires Ollama running and qwen2.5-coder:7b installed.',
                   'Generated commands are NEVER executed.',
                   '', 'EXAMPLES: free disk space / find largest files / clean temp',
                   '          list Ollama models / backup folder / checksum', '']
             job=self.jobs.current
-            if job and job.name=='Ollama translator' and job.state=='COMPLETED':
+            if self.result_mode=='command' and job and job.name=='Ollama translator' and job.state=='COMPLETED':
                 self.translation=job.result
-            elif job and job.name=='Ollama translator' and job.state=='FAILED':
+            elif self.result_mode=='command' and job and job.name=='Ollama translator' and job.state=='FAILED':
                 rows.append('Local AI error: '+job.message)
-            elif job and job.name=='Ollama translator' and job.state in ('RUNNING','QUEUED','CANCELLING'):
+            elif self.result_mode=='command' and job and job.name=='Ollama translator' and job.state in ('RUNNING','QUEUED','CANCELLING'):
                 rows.append('Local AI is responding... watch status spinner / press C to cancel')
+            if self.result_mode=='intent' and job and job.name=='Ollama intent classifier':
+                if job.state=='COMPLETED':self.intent_plan=job.result
+                elif job.state=='FAILED':rows.append('Intent classifier failed: '+job.message)
+                elif job.state in ('RUNNING','QUEUED','CANCELLING'):
+                    rows.append('Intent model is classifying... Esc back / C cancel')
             if self.translator_query:rows.extend(['REQUEST: '+self.translator_query,''])
-            if self.translation:
+            if self.intent_plan:
+                plan=self.intent_plan
+                rows += ['INTENT PLAN / NEVER EXECUTED',
+                         'Operation: '+plan['intent'],
+                         'Confidence: '+str(round(plan['confidence']*100))+'% / '+plan['provider'],
+                         'Risk: '+plan['risk'],
+                         'Ready for preview: '+str(plan['ready_for_preview']),
+                         'Next: '+plan['next_step']]
+                for k,v in plan['parameters'].items():
+                    if v:rows.append(k+': '+v)
+                for warning in plan['warnings']:rows.append('WARN: '+warning)
+                for missing in plan['missing']:rows.append('MISSING: '+missing)
+                rows.append('No command executed; AI did not get system access.')
+            if self.result_mode=='command' and self.translation:
                 rows.extend([self.translation['description'],f"RISK: {self.translation.get('risk','review')}"])
                 for line in str(self.translation['command'] or '(no command found)').splitlines():
                     rows.extend(__import__('textwrap').wrap(line,75,break_long_words=False) or [''])
@@ -483,6 +579,10 @@ class Controller:
                     'Known limitation: source launcher requires Python 3.10+.']
         if self.mode==8:
             rows=[f'EVENT LOGS / {self.jobs.log_dir}','Recent audit events:','']
+            rows += ['', 'OPERATOR PLANS / NAVIGATION (NOT EXECUTED)']
+            for entry in self.activity.recent(8):
+                rows.append(entry['timestamp'][11:19]+' '+entry['event']+': '+entry['operation'])
+            rows += ['', 'LIVE TASK EVENTS']
             for e in self.jobs.events[-30:]:
                 rows.append(f"[{e['timestamp'][-14:-6]}] {e['level']:7} {e['message']}")
             return rows

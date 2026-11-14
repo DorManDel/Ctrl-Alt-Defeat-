@@ -21,6 +21,26 @@
 - [ ] File conversion adapters with previews, progress and metadata preservation
 - [ ] Optional third-party games in non-admin sessions, with license review
 
+## Control Center organization / history
+
+- [x] Navigation back-stack preserving screen, folder, drive selector and cursor (`Esc`), independent from active jobs
+- [x] Scoped local activity journal for navigation and non-executed AI plans
+- [x] Actual-data-only storage size bar view (`V`); not yet a graphical treemap
+- [ ] Category sidebar like Windows Control Panel with favorites, search and command palette
+- [ ] History browser: filters, task details, export, optional privacy redaction
+- [ ] Versioned operation transactions, per-adapter rollback, restore tests
+- [ ] Textual dashboard with Tree, DataTable, sparklines and process trends
+- [ ] WizTree CSV/treemap and Sysinternals read-only adapters after licensing review
+- [ ] Separate rescue/boot environment inspiration from MediCat and Strelec; no bundled ISOs
+
+## Local Intent Lab — proof of concept
+
+- [x] Structured Ollama intent classification using a small local model (preview only)
+- [x] Offline explicitly labeled keyword baseline for comparison
+- [ ] Benchmark Hebrew and English phrases on actual Windows Ollama (accuracy, latency, tokens, memory)
+- [ ] Build capability registry with typed params, permission policy and robust path validation
+- [ ] Preview actions with per-operation approvals, rollback policy and auditable execution plans
+
 ## Later — the small AI helper
 
 - [ ] Catalog trusted tool capabilities and typed arguments

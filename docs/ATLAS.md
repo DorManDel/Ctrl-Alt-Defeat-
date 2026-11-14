@@ -14,8 +14,11 @@ This is the map of **Ctrl+Alt+Defeat**: what exists, where the code lives, why i
 | **04 — Cleanup** | [`cleanup.py`](../ctrl_alt_defeat/cleanup.py) | User Temp candidates and approved cleanup | [Safety rationale](DECISIONS.md) |
 | **05 — Files / capacity** | [`core.py`](../ctrl_alt_defeat/core.py), [`capacity.py`](../ctrl_alt_defeat/capacity.py) | Verified copy and limited removable-drive probes | [Legacy notes](CAPACITY_TRANSLATOR_ARCADE.md) |
 | **06 — Translator** | [`translator.py`](../ctrl_alt_defeat/translator.py) | Command previews; optional Ollama-based suggestions | [AI goals](AI_ASSISTANT_VISION.md) |
+| **06a — Intent Lab** | [`intent_router.py`](../ctrl_alt_defeat/intent_router.py) | Ollama structured task recognition; never executes commands | [Design](INTENT_LAB.md) |
 | **07 — Optional arcade** | [`arcade.py`](../ctrl_alt_defeat/arcade.py), [`arcade_cli.py`](../ctrl_alt_defeat/arcade_cli.py) | External game adapters, no embedded games | [Installation](ARCADE_SETUP.md) |
 | **08 — Versions & health** | [`versions.py`](../ctrl_alt_defeat/versions.py), [`selfcheck.py`](../ctrl_alt_defeat/selfcheck.py) | Recognize older copies and check app contracts | [Test plan](TEST_PLAN.md) |
+
+**New explorations:** [Control Center blueprint](CONTROL_CENTER.md) · [Local Intent Lab](INTENT_LAB.md) · [Activity history](ACTIVITY_LOG.md)
 
 ## Current reality
 
