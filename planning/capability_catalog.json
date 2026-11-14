@@ -1,0 +1,795 @@
+{
+  "schema_version": 1,
+  "planning_only": true,
+  "updated": "2026-11-14",
+  "purpose": "Catalog for future UI, policy and model intent mapping; NOT a runtime action allowlist or executor.",
+  "status_values": [
+    "implemented",
+    "experimental",
+    "planned",
+    "future"
+  ],
+  "risk_values": [
+    "read-only",
+    "write",
+    "destructive",
+    "privileged"
+  ],
+  "entries": [
+    {
+      "id": "storage.browse",
+      "category": "Storage & Cleanup",
+      "name": "Browse drives and folders",
+      "status": "implemented",
+      "risk": "read-only",
+      "priority": "P0",
+      "planned_adapter": [
+        "native-python"
+      ],
+      "parameters": [],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "storage.scan",
+      "category": "Storage & Cleanup",
+      "name": "Scan folder size and save snapshot",
+      "status": "implemented",
+      "risk": "read-only",
+      "priority": "P0",
+      "planned_adapter": [
+        "native-python"
+      ],
+      "parameters": [
+        "target"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "storage.compare",
+      "category": "Storage & Cleanup",
+      "name": "Compare two storage snapshots",
+      "status": "implemented",
+      "risk": "read-only",
+      "priority": "P0",
+      "planned_adapter": [
+        "native-python"
+      ],
+      "parameters": [
+        "before_id",
+        "after_id"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "storage.bars",
+      "category": "Storage & Cleanup",
+      "name": "Show scanned directory size bars",
+      "status": "experimental",
+      "risk": "read-only",
+      "priority": "P0",
+      "planned_adapter": [
+        "native-python"
+      ],
+      "parameters": [
+        "snapshot_id"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "storage.treemap",
+      "category": "Storage & Cleanup",
+      "name": "Interactive treemap of disk usage",
+      "status": "planned",
+      "risk": "read-only",
+      "priority": "P2",
+      "planned_adapter": [
+        "native-ui",
+        "optional-wiztree"
+      ],
+      "parameters": [
+        "snapshot_id"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "storage.wiztree_import",
+      "category": "Storage & Cleanup",
+      "name": "Import WizTree CSV results",
+      "status": "planned",
+      "risk": "read-only",
+      "priority": "P1",
+      "planned_adapter": [
+        "wiztree-csv"
+      ],
+      "parameters": [
+        "input_file"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "storage.large_files",
+      "category": "Storage & Cleanup",
+      "name": "Find largest files with exclusions",
+      "status": "planned",
+      "risk": "read-only",
+      "priority": "P1",
+      "planned_adapter": [
+        "native-python",
+        "czkawka-cli"
+      ],
+      "parameters": [
+        "target"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "cleanup.temp_preview",
+      "category": "Storage & Cleanup",
+      "name": "Inspect old user Temp files",
+      "status": "implemented",
+      "risk": "read-only",
+      "priority": "P0",
+      "planned_adapter": [
+        "native-python"
+      ],
+      "parameters": [],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "cleanup.temp_delete",
+      "category": "Storage & Cleanup",
+      "name": "Remove confirmed eligible user Temp files",
+      "status": "implemented",
+      "risk": "destructive",
+      "priority": "P0",
+      "planned_adapter": [
+        "native-python"
+      ],
+      "parameters": [
+        "selection_id"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "cleanup.windows_components",
+      "category": "Storage & Cleanup",
+      "name": "Analyze Windows component store",
+      "status": "planned",
+      "risk": "read-only",
+      "priority": "P1",
+      "planned_adapter": [
+        "dism"
+      ],
+      "parameters": [],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "cleanup.logs",
+      "category": "Storage & Cleanup",
+      "name": "Inspect selected application log files",
+      "status": "planned",
+      "risk": "read-only",
+      "priority": "P2",
+      "planned_adapter": [
+        "native-python"
+      ],
+      "parameters": [
+        "target"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "cleanup.duplicates",
+      "category": "Storage & Cleanup",
+      "name": "Review duplicate file groups",
+      "status": "planned",
+      "risk": "read-only",
+      "priority": "P1",
+      "planned_adapter": [
+        "czkawka-cli"
+      ],
+      "parameters": [
+        "target"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "files.copy_verified",
+      "category": "Files & Recovery",
+      "name": "Copy one file with SHA256 verification",
+      "status": "implemented",
+      "risk": "write",
+      "priority": "P0",
+      "planned_adapter": [
+        "native-python"
+      ],
+      "parameters": [
+        "source",
+        "destination"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "adapter-specific",
+      "executable_by_ai": false
+    },
+    {
+      "id": "files.hash",
+      "category": "Files & Recovery",
+      "name": "Calculate file checksum",
+      "status": "implemented",
+      "risk": "read-only",
+      "priority": "P0",
+      "planned_adapter": [
+        "native-python"
+      ],
+      "parameters": [
+        "source"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "files.backup_folder",
+      "category": "Files & Recovery",
+      "name": "Backup folder recursively",
+      "status": "planned",
+      "risk": "write",
+      "priority": "P0",
+      "planned_adapter": [
+        "robocopy"
+      ],
+      "parameters": [
+        "source",
+        "destination"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "adapter-specific",
+      "executable_by_ai": false
+    },
+    {
+      "id": "files.restore",
+      "category": "Files & Recovery",
+      "name": "Restore a verified backup",
+      "status": "planned",
+      "risk": "write",
+      "priority": "P1",
+      "planned_adapter": [
+        "robocopy",
+        "native-python"
+      ],
+      "parameters": [
+        "backup_id",
+        "destination"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "adapter-specific",
+      "executable_by_ai": false
+    },
+    {
+      "id": "files.quarantine",
+      "category": "Files & Recovery",
+      "name": "Move selected files into owned quarantine",
+      "status": "planned",
+      "risk": "destructive",
+      "priority": "P1",
+      "planned_adapter": [
+        "native-python"
+      ],
+      "parameters": [
+        "selection_id"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "restore-supported",
+      "executable_by_ai": false
+    },
+    {
+      "id": "files.archive",
+      "category": "Files & Recovery",
+      "name": "Create or extract archives",
+      "status": "planned",
+      "risk": "write",
+      "priority": "P2",
+      "planned_adapter": [
+        "7zip"
+      ],
+      "parameters": [
+        "source",
+        "destination"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "adapter-specific",
+      "executable_by_ai": false
+    },
+    {
+      "id": "files.media_convert",
+      "category": "Files & Recovery",
+      "name": "Convert audio and video files",
+      "status": "planned",
+      "risk": "write",
+      "priority": "P2",
+      "planned_adapter": [
+        "ffmpeg"
+      ],
+      "parameters": [
+        "source",
+        "destination",
+        "format"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "adapter-specific",
+      "executable_by_ai": false
+    },
+    {
+      "id": "files.image_convert",
+      "category": "Files & Recovery",
+      "name": "Convert or resize images",
+      "status": "planned",
+      "risk": "write",
+      "priority": "P2",
+      "planned_adapter": [
+        "imagemagick"
+      ],
+      "parameters": [
+        "source",
+        "destination",
+        "format"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "adapter-specific",
+      "executable_by_ai": false
+    },
+    {
+      "id": "system.doctor",
+      "category": "System & Performance",
+      "name": "Read basic system diagnostic state",
+      "status": "experimental",
+      "risk": "read-only",
+      "priority": "P0",
+      "planned_adapter": [
+        "native-windows"
+      ],
+      "parameters": [],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "process.tree",
+      "category": "System & Performance",
+      "name": "View process tree and CPU RAM activity",
+      "status": "planned",
+      "risk": "read-only",
+      "priority": "P1",
+      "planned_adapter": [
+        "psutil",
+        "windows-counters"
+      ],
+      "parameters": [],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "process.handles",
+      "category": "System & Performance",
+      "name": "Find which process holds a file open",
+      "status": "planned",
+      "risk": "read-only",
+      "priority": "P2",
+      "planned_adapter": [
+        "process-explorer"
+      ],
+      "parameters": [
+        "target"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "process.events",
+      "category": "System & Performance",
+      "name": "Capture bounded system events",
+      "status": "planned",
+      "risk": "read-only",
+      "priority": "P2",
+      "planned_adapter": [
+        "procmon"
+      ],
+      "parameters": [
+        "scope",
+        "duration_seconds"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "software.inventory",
+      "category": "Apps & Updates",
+      "name": "List installed applications",
+      "status": "planned",
+      "risk": "read-only",
+      "priority": "P1",
+      "planned_adapter": [
+        "winget"
+      ],
+      "parameters": [],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "software.install",
+      "category": "Apps & Updates",
+      "name": "Install a selected signed package",
+      "status": "planned",
+      "risk": "privileged",
+      "priority": "P2",
+      "planned_adapter": [
+        "winget"
+      ],
+      "parameters": [
+        "package_id"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "adapter-specific",
+      "executable_by_ai": false
+    },
+    {
+      "id": "software.uninstall",
+      "category": "Apps & Updates",
+      "name": "Uninstall selected application",
+      "status": "planned",
+      "risk": "destructive",
+      "priority": "P2",
+      "planned_adapter": [
+        "winget",
+        "vendor-uninstall"
+      ],
+      "parameters": [
+        "package_id"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "adapter-specific",
+      "executable_by_ai": false
+    },
+    {
+      "id": "system.servicing",
+      "category": "Apps & Updates",
+      "name": "Analyze Windows health and supported repair",
+      "status": "planned",
+      "risk": "privileged",
+      "priority": "P1",
+      "planned_adapter": [
+        "dism",
+        "sfc"
+      ],
+      "parameters": [
+        "action"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "adapter-specific",
+      "executable_by_ai": false
+    },
+    {
+      "id": "dev.steam",
+      "category": "Developer Tools",
+      "name": "Inspect Steam downloads and caches",
+      "status": "planned",
+      "risk": "read-only",
+      "priority": "P1",
+      "planned_adapter": [
+        "steam-local"
+      ],
+      "parameters": [
+        "target"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "dev.unity",
+      "category": "Developer Tools",
+      "name": "Inspect Unity editors and projects",
+      "status": "planned",
+      "risk": "read-only",
+      "priority": "P1",
+      "planned_adapter": [
+        "unity-hub-local"
+      ],
+      "parameters": [],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "dev.ollama",
+      "category": "Developer Tools",
+      "name": "List and manage local Ollama models",
+      "status": "planned",
+      "risk": "read-only",
+      "priority": "P1",
+      "planned_adapter": [
+        "ollama-api"
+      ],
+      "parameters": [],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "device.capacity_probe",
+      "category": "Devices & Recovery",
+      "name": "Bounded external drive write read verification",
+      "status": "implemented",
+      "risk": "write",
+      "priority": "P0",
+      "planned_adapter": [
+        "native-python"
+      ],
+      "parameters": [
+        "target",
+        "size_mib"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "adapter-specific",
+      "executable_by_ai": false
+    },
+    {
+      "id": "device.smart_health",
+      "category": "Devices & Recovery",
+      "name": "Read SMART hardware health information",
+      "status": "planned",
+      "risk": "read-only",
+      "priority": "P2",
+      "planned_adapter": [
+        "smartmontools"
+      ],
+      "parameters": [
+        "device_id"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "recovery.boot_environment",
+      "category": "Devices & Recovery",
+      "name": "Prepare vetted boot recovery media",
+      "status": "future",
+      "risk": "privileged",
+      "priority": "P3",
+      "planned_adapter": [
+        "external-recovery"
+      ],
+      "parameters": [
+        "device_id"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "device.secure_erase",
+      "category": "Devices & Recovery",
+      "name": "Hardware-specific secure sanitization",
+      "status": "future",
+      "risk": "destructive",
+      "priority": "P3",
+      "planned_adapter": [
+        "hardware-vendor"
+      ],
+      "parameters": [
+        "device_id"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "ai.offline_suggest",
+      "category": "AI & Automation",
+      "name": "Explain curated offline commands",
+      "status": "implemented",
+      "risk": "read-only",
+      "priority": "P0",
+      "planned_adapter": [
+        "curated-recipes"
+      ],
+      "parameters": [
+        "request"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "ai.ollama_command_preview",
+      "category": "AI & Automation",
+      "name": "Preview local LLM suggested command text",
+      "status": "experimental",
+      "risk": "read-only",
+      "priority": "P0",
+      "planned_adapter": [
+        "ollama-api"
+      ],
+      "parameters": [
+        "request"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "ai.classify_intent",
+      "category": "AI & Automation",
+      "name": "Classify user intent into structured plan",
+      "status": "experimental",
+      "risk": "read-only",
+      "priority": "P0",
+      "planned_adapter": [
+        "ollama-api"
+      ],
+      "parameters": [
+        "request"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "ai.explain_command",
+      "category": "AI & Automation",
+      "name": "Explain trusted command segments at two levels",
+      "status": "planned",
+      "risk": "read-only",
+      "priority": "P0",
+      "planned_adapter": [
+        "trusted-recipe-explainer"
+      ],
+      "parameters": [
+        "plan_id"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "ai.approved_dispatch",
+      "category": "AI & Automation",
+      "name": "Dispatch explicitly approved validated tool action",
+      "status": "planned",
+      "risk": "privileged",
+      "priority": "P0",
+      "planned_adapter": [
+        "policy-executor"
+      ],
+      "parameters": [
+        "approved_plan_id"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "adapter-specific",
+      "executable_by_ai": false
+    },
+    {
+      "id": "history.navigation",
+      "category": "History & Settings",
+      "name": "Go back to previous UI state",
+      "status": "experimental",
+      "risk": "read-only",
+      "priority": "P0",
+      "planned_adapter": [
+        "native-python"
+      ],
+      "parameters": [],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "history.activity",
+      "category": "History & Settings",
+      "name": "View local navigation and AI proposals journal",
+      "status": "experimental",
+      "risk": "read-only",
+      "priority": "P0",
+      "planned_adapter": [
+        "native-python"
+      ],
+      "parameters": [],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "history.job_audit",
+      "category": "History & Settings",
+      "name": "View timestamped task events",
+      "status": "implemented",
+      "risk": "read-only",
+      "priority": "P0",
+      "planned_adapter": [
+        "native-python"
+      ],
+      "parameters": [],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "history.version_manager",
+      "category": "History & Settings",
+      "name": "Review older program copies for optional recycling",
+      "status": "experimental",
+      "risk": "destructive",
+      "priority": "P1",
+      "planned_adapter": [
+        "native-windows"
+      ],
+      "parameters": [
+        "selection_id"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "restore-supported",
+      "executable_by_ai": false
+    },
+    {
+      "id": "history.self_test",
+      "category": "History & Settings",
+      "name": "Run local unit and smoke check entrypoints",
+      "status": "implemented",
+      "risk": "read-only",
+      "priority": "P0",
+      "planned_adapter": [
+        "unittest"
+      ],
+      "parameters": [],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    },
+    {
+      "id": "arcade.launch_external",
+      "category": "Extras",
+      "name": "Launch separately installed terminal games",
+      "status": "experimental",
+      "risk": "write",
+      "priority": "P3",
+      "planned_adapter": [
+        "normal-user-external"
+      ],
+      "parameters": [
+        "game_id"
+      ],
+      "ai_execution_requires_explicit_approval": true,
+      "undo_policy": "none",
+      "executable_by_ai": false
+    }
+  ]
+}
